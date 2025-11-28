@@ -261,8 +261,8 @@ ls -la src/code_api/rider_pi.py
 
 ## Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/rider-pi-mcp/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/rider-pi-mcp/discussions)
+- **Issues:** [GitHub Issues](https://github.com/Duzafizzl/rider-pi-publicproject/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Duzafizzl/rider-pi-publicproject/discussions)
 
 ---
 

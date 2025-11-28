@@ -37,8 +37,8 @@ Integration of the Rider-Pi robot with AI agents via MCP (Model Context Protocol
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/rider-pi-mcp.git
-cd rider-pi-mcp
+git clone https://github.com/Duzafizzl/rider-pi-publicproject.git
+cd rider-pi-publicproject
 
 # Install dependencies
 pip install mcp
@@ -214,8 +214,8 @@ MIT License - see LICENSE file for details
 
 ## 📞 Support
 
-- Issues: [GitHub Issues](https://github.com/yourusername/rider-pi-mcp/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/rider-pi-mcp/discussions)
+- Issues: [GitHub Issues](https://github.com/Duzafizzl/rider-pi-publicproject/issues)
+- Discussions: [GitHub Discussions](https://github.com/Duzafizzl/rider-pi-publicproject/discussions)
 
 ---
 
