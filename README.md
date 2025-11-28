@@ -1,8 +1,18 @@
 # 🤖 Rider-Pi MCP Integration
 
-Integration of the Rider-Pi robot with AI agents via MCP (Model Context Protocol). This project enables AI agents to control the Rider-Pi robot, read sensors, capture images, and even self-improve through code editing capabilities.
+<div align="center">
+
+![Rider-Pi Robot with Letta](assets/rider-pi-letta-hero.png)
 
 **Perfect for [Letta](https://letta.com) agents!** This project is designed to work seamlessly with Letta's AI agents, enabling them to control physical robots through MCP tools and code execution.
+
+[![Letta](https://img.shields.io/badge/powered%20by-Letta-blue)](https://letta.com)
+[![MCP](https://img.shields.io/badge/MCP-Protocol-green)](https://modelcontextprotocol.io)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+</div>
+
+Integration of the Rider-Pi robot with AI agents via MCP (Model Context Protocol). This project enables AI agents to control the Rider-Pi robot, read sensors, capture images, and even self-improve through code editing capabilities.
 
 ## 🎯 Features
 
