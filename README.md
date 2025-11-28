@@ -2,6 +2,8 @@
 
 Integration of the Rider-Pi robot with AI agents via MCP (Model Context Protocol). This project enables AI agents to control the Rider-Pi robot, read sensors, capture images, and even self-improve through code editing capabilities.
 
+**Perfect for [Letta](https://letta.com) agents!** This project is designed to work seamlessly with Letta's AI agents, enabling them to control physical robots through MCP tools and code execution.
+
 ## 🎯 Features
 
 - **MCP Server**: Full control of Rider-Pi robot via MCP tools
@@ -55,10 +57,53 @@ if battery < 20:
     rp.set_display_expression(10)  # Warning
 ```
 
+## 🤖 Letta Integration
+
+This project is optimized for use with [Letta](https://letta.com) - a platform for building AI agents with code execution capabilities.
+
+### Why Letta?
+
+- **Code Execution**: Letta agents can write and execute Python code, enabling 98.7% token savings compared to tool calls
+- **Self-Improvement**: Agents can read, write, and edit their own code (inspired by [letta-code](https://github.com/letta-ai/letta-code))
+- **MCP Support**: Native MCP (Model Context Protocol) integration
+- **Memory Blocks**: Agents can learn and reuse movement sequences
+
+### Quick Letta Setup
+
+1. **Register MCP Server in Letta:**
+   ```python
+   from letta import Letta
+   
+   client = Letta(api_key="your-api-key")
+   mcp_server = client.mcp_servers.create(
+       server_name="rider-pi-mcp",
+       config={
+           "mcp_server_type": "stdio",
+           "command": "python3",
+           "args": ["/path/to/rider-pi-mcp/src/mcp/server.py"],
+           "env": {
+               "RIDER_PI_HOST": "riderpi.local",
+               "RIDER_PI_USER": "pi",
+               "RIDER_PI_SSH_KEY": "~/.ssh/rider_pi_key"
+           }
+       }
+   )
+   ```
+
+2. **Enable Code Execution:**
+   - Go to Agent Settings → Enable "Code Execution"
+   - Add `rider_pi_code_api` to available modules
+
+3. **Your agent can now control the robot!**
+   - Via MCP Tools: Direct tool calls
+   - Via Code Execution: Write Python code for complex sequences
+
+See [Setup Guide](docs/setup/SETUP.md) for detailed instructions.
+
 ## 📚 Documentation
 
 - **[Roadmap](docs/planning/ROADMAP.md)** - Complete development roadmap and feature plan (includes Discord Bot integration option)
-- **[Setup Guide](docs/setup/SETUP.md)** - Detailed setup instructions
+- **[Setup Guide](docs/setup/SETUP.md)** - Detailed setup instructions including Letta integration
 - **[Architecture](docs/architecture/)** - Technical architecture documentation
 
 ## 🏗️ Project Structure
@@ -151,8 +196,9 @@ MIT License - see LICENSE file for details
 
 ## 🙏 Acknowledgments
 
-- Inspired by [letta-code](https://github.com/letta-ai/letta-code)
-- Built with [MCP Protocol](https://modelcontextprotocol.io)
+- **Built for [Letta](https://letta.com)** - AI agent platform with code execution
+- Inspired by [letta-code](https://github.com/letta-ai/letta-code) - self-improving coding agents
+- Built with [MCP Protocol](https://modelcontextprotocol.io) - Model Context Protocol
 - Rider-Pi robot by [Yahboom](https://github.com/YahboomTechnology/Rider-Pi-Robot)
 - Official Rider-Pi documentation: [YahboomTechnology/Rider-Pi-Robot](https://github.com/YahboomTechnology/Rider-Pi-Robot)
 
