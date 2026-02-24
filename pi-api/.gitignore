@@ -1,0 +1,12 @@
+# File: .gitignore
+# Description: Ignored files for Rider Pi API.
+# Created: 2026-02-17
+# Last updated: 2026-02-17
+
+.venv/
+__pycache__/
+*.pyc
+.env
+logs/*.log
+*.log
+.DS_Store

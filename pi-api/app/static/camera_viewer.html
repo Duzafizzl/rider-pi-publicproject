@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- File: camera_viewer.html | Rider Pi /camera – Live stream + SYS.STATUS (throttle, rotation, expressions). Local API. Created: 2026-02-16. Last updated: 2026-02-24. -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NEURAL.FEED · Rider Pi</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --panel: #12121a;
+      --border: #2a2a35;
+      --text: #e8e8ed;
+      --muted: #6b6b7b;
+      --orange: #f97316;
+      --orange-glow: rgba(249, 115, 22, 0.35);
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, 0.25);
+      --blue: #0ea5e9;
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "JetBrains Mono", "SF Mono", monospace;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: auto 1fr;
+      grid-template-areas: "feed side" "feed side";
+    }
+    .panel-feed {
+      grid-area: feed;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      padding: 12px;
+      min-height: 0;
+    }
+    .panel-feed .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .panel-feed .title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--orange);
+      text-shadow: 0 0 12px var(--orange-glow);
+    }
+    .panel-feed .decisions { color: var(--muted); font-size: 11px; }
+    .panel-feed .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+    .panel-feed .status-dot.live { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .feed-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+    .feed-tabs button {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .feed-tabs button.active { border-color: var(--teal); color: var(--teal); background: rgba(20, 184, 166, 0.08); }
+    .feed-tabs button:hover { color: var(--text); }
+    .stream-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 200px;
+      max-height: 60vh;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .stream-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .stream-wrap .expand-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px 20px;
+      border: 1px solid var(--blue);
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--blue);
+      font: inherit;
+      font-size: 12px;
+      border-radius: 6px;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .feed-logic {
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .feed-logic strong { color: var(--text); }
+    .feed-logic .obstacles { color: var(--orange); margin-top: 4px; }
+    .feed-logic a { color: var(--blue); text-decoration: none; }
+    .feed-logic a:hover { text-decoration: underline; }
+    .side {
+      grid-area: side;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      min-height: 0;
+    }
+    .widget {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      flex-shrink: 0;
+    }
+    .widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .widget-title {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .widget-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+    .widget-title .dot.green { background: var(--green); }
+    .geo-map {
+      height: 120px;
+      background: #1a1a22;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .geo-status { margin-top: 8px; font-size: 10px; color: var(--muted); }
+    .steering-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .steering-label { font-size: 11px; color: var(--muted); }
+    .steering-gauge {
+      width: 80px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      background: var(--bg);
+    }
+    .steering-gauge .needle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2px;
+      height: 32px;
+      background: var(--teal);
+      transform-origin: bottom center;
+      transform: translate(-50%, -100%) rotate(0deg);
+      box-shadow: 0 0 8px var(--teal-glow);
+    }
+    .steering-gauge .l, .steering-gauge .r { position: absolute; top: 4px; font-size: 9px; color: var(--muted); }
+    .steering-gauge .l { left: 4px; }
+    .steering-gauge .r { right: 4px; }
+    .throttle-row { margin-bottom: 12px; }
+    .throttle-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .throttle-btns { display: flex; gap: 6px; }
+    .throttle-btns button {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .throttle-btns button.active { border-color: var(--teal); color: var(--teal); background: rgba(20, 184, 166, 0.1); }
+    .throttle-btns button:hover { color: var(--text); }
+    .rotation-row { margin-bottom: 12px; }
+    .rotation-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .expression-row { margin-bottom: 12px; }
+    .expression-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .expression-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+    .expression-btns button {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font: inherit;
+      font-size: 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .expression-btns button:hover { color: var(--text); }
+    .expression-btns button.emote { border-color: var(--orange); color: var(--orange); }
+    .expression-btns button.emote:hover { background: rgba(249, 115, 22, 0.1); }
+    .sys-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 10px; }
+    .sys-stats .k { color: var(--muted); }
+    .sys-stats .v { color: var(--text); text-align: right; }
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; grid-template-areas: "feed" "side"; }
+      .stream-wrap { max-height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+  <section class="panel-feed">
+    <div class="header">
+      <span class="status-dot" id="feedDot"></span>
+      <span class="title">NEURAL.FEED</span>
+      <span class="decisions" id="decisions">[LIVE]</span>
+    </div>
+    <div class="feed-tabs">
+      <button class="active">ALL</button>
+      <button>NAV</button>
+      <button>CHAT</button>
+      <button class="active">AUTO: ON</button>
+    </div>
+    <div class="stream-wrap">
+      <img id="streamImg" src="/api/camera/stream" alt="Rider Pi camera" />
+      <span class="expand-btn">EXPAND VIEW</span>
+    </div>
+    <div class="feed-logic">
+      <strong>LOGIC:</strong> Rider Pi camera live stream (local). <a href="/api/camera/snapshot" target="_blank">Snapshot</a> · <code>/camera</code>
+      <div class="obstacles">▲ OBSTACLES: —</div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="widget">
+      <div class="widget-header">
+        <span class="widget-title"><span class="dot"></span> GEO.TRACK</span>
+      </div>
+      <div class="geo-map">Map (placeholder)</div>
+      <div class="geo-status">◇ LOCAL · PI</div>
+    </div>
+    <div class="widget">
+      <div class="widget-header">
+        <span class="widget-title"><span class="dot green"></span> SYS.STATUS</span>
+      </div>
+      <div class="steering-row">
+        <span class="steering-label">STEERING.VECTOR</span>
+        <div class="steering-gauge">
+          <span class="l">L</span><span class="r">R</span>
+          <div class="needle" id="steeringNeedle"></div>
+        </div>
+        <span id="steeringVal">90°</span>
+      </div>
+      <div class="throttle-row">
+        <div class="throttle-label">THROTTLE.STATE</div>
+        <div class="throttle-btns">
+          <button type="button" id="btnRev" title="Backward">REV</button>
+          <button type="button" id="btnStop" class="active" title="Stop">STOP</button>
+          <button type="button" id="btnFwd" title="Forward">FWD</button>
+        </div>
+      </div>
+      <div class="rotation-row">
+        <div class="rotation-label">READY STANCE</div>
+        <div class="throttle-btns">
+          <button type="button" id="btnReady" title="Balance + height (needed once before rotate/move)">READY</button>
+        </div>
+      </div>
+      <div class="rotation-row">
+        <div class="rotation-label">ROTATION</div>
+        <div class="throttle-btns">
+          <button type="button" id="btnRotL" title="Left -90°">ROT.L</button>
+          <button type="button" id="btnRotR" title="Right +90°">ROT.R</button>
+        </div>
+      </div>
+      <div class="expression-row">
+        <div class="expression-label">EXPRESSIONS / EMOTES</div>
+        <div class="expression-btns">
+          <button type="button" class="emote" data-action="1" title="Wiggle">Wiggle</button>
+          <button type="button" class="emote" data-action="2" title="Up/down">Up/down</button>
+          <button type="button" class="emote" data-action="3" title="Fwd/back">Fwd/back</button>
+          <button type="button" class="emote" data-action="4" title="Figure-eight">Figure-8</button>
+          <button type="button" class="emote" data-action="5" title="Circle">Circle</button>
+          <button type="button" class="emote" data-action="6" title="Dance">Dance</button>
+          <button type="button" id="btnExprReset" title="Stop">Reset</button>
+        </div>
+      </div>
+      <div class="sys-stats">
+        <span class="k">RUN STATUS</span><span class="v" id="runStatus">IDLE</span>
+        <span class="k">UPTIME</span><span class="v" id="uptime">00:00</span>
+        <span class="k">BATTERY</span><span class="v" id="battery">—</span>
+        <span class="k">AVG FPS</span><span class="v" id="fps">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    (function () {
+      var img = document.getElementById('streamImg');
+      var feedDot = document.getElementById('feedDot');
+      img.onerror = function () {
+        feedDot.classList.remove('live');
+        feedDot.title = 'Stream not reachable';
+      };
+      img.onload = function () { feedDot.classList.add('live'); };
+
+      function setThrottleActive(btn) {
+        document.querySelectorAll('.throttle-btns button').forEach(function (b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+      }
+      function piPost(path, params) {
+        var q = new URLSearchParams(params || {}).toString();
+        var url = path + (q ? '?' + q : '');
+        return fetch(url, { method: 'POST' }).then(function (r) {
+          return r.json().then(function (d) {
+            if (!r.ok) return { ok: false, message: d && (d.detail || d.message || r.statusText) };
+            return d || { ok: false };
+          }).catch(function () {
+            return { ok: false, message: r.status + ' ' + r.statusText };
+          });
+        }).catch(function (err) {
+          return { ok: false, message: err.message || 'Network error' };
+        });
+      }
+
+      document.getElementById('btnRev').addEventListener('click', function () {
+        setThrottleActive(this);
+        piPost('/api/move', { direction: 'backward', duration: '0.5', speed: '0.4' }).then(function (d) {
+          if (d && !d.ok) document.getElementById('runStatus').textContent = 'ERR';
+          setTimeout(function () { setThrottleActive(document.getElementById('btnStop')); }, 400);
+        }).catch(function () { setThrottleActive(document.getElementById('btnStop')); });
+      });
+      document.getElementById('btnStop').addEventListener('click', function () {
+        setThrottleActive(this);
+        piPost('/api/stop').then(function (d) {
+          document.getElementById('runStatus').textContent = (d && d.ok) ? 'IDLE' : document.getElementById('runStatus').textContent;
+        });
+      });
+      document.getElementById('btnFwd').addEventListener('click', function () {
+        setThrottleActive(this);
+        piPost('/api/move', { direction: 'forward', duration: '0.5', speed: '0.4' }).then(function (d) {
+          if (d && !d.ok) document.getElementById('runStatus').textContent = 'ERR';
+          setTimeout(function () { setThrottleActive(document.getElementById('btnStop')); }, 400);
+        }).catch(function () { setThrottleActive(document.getElementById('btnStop')); });
+      });
+      document.getElementById('btnReady').addEventListener('click', function () {
+        piPost('/api/ready', { height_mm: 95 }).then(function (d) {
+          var el = document.getElementById('runStatus');
+          if (d && d.ok) el.textContent = 'READY'; else el.textContent = (d && d.message) ? String(d.message).slice(0, 12) : 'ERR';
+        });
+      });
+      document.getElementById('btnRotL').addEventListener('click', function () {
+        piPost('/api/rotate', { angle: -90, speed: 0.5 }).then(function (d) {
+          var el = document.getElementById('runStatus');
+          if (d && !d.ok) el.textContent = (d.message ? String(d.message).slice(0, 12) : 'ERR');
+        });
+      });
+      document.getElementById('btnRotR').addEventListener('click', function () {
+        piPost('/api/rotate', { angle: 90, speed: 0.5 }).then(function (d) {
+          var el = document.getElementById('runStatus');
+          if (d && !d.ok) el.textContent = (d.message ? String(d.message).slice(0, 12) : 'ERR');
+        });
+      });
+      document.querySelectorAll('.expression-btns button[data-action]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = parseInt(this.getAttribute('data-action'), 10);
+          if (!id) return;
+          piPost('/api/action', { action_id: id }).then(function (d) {
+            if (d && !d.ok) document.getElementById('runStatus').textContent = 'ERR';
+          });
+        });
+      });
+      document.getElementById('btnExprReset').addEventListener('click', function () {
+        piPost('/api/stop').then(function (d) {
+          document.getElementById('runStatus').textContent = (d && d.ok) ? 'IDLE' : document.getElementById('runStatus').textContent;
+        });
+      });
+
+      function refreshStatus() {
+        fetch('/health').then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.robot_available !== undefined) {
+            document.getElementById('runStatus').textContent = d.robot_available ? 'READY' : 'IDLE';
+          }
+          if (d && d.uptime_seconds != null) {
+            var m = Math.floor(d.uptime_seconds / 60);
+            var s = Math.floor(d.uptime_seconds % 60);
+            document.getElementById('uptime').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+          }
+          if (d && d.battery != null) {
+            document.getElementById('battery').textContent = d.battery + '%';
+          }
+        }).catch(function () {});
+      }
+      refreshStatus();
+      setInterval(refreshStatus, 10000);
+      // Einmal READY beim Laden, damit Rotate/Move sofort funktionieren
+      piPost('/api/ready', { height_mm: 95 }).then(function (d) {
+        if (d && d.ok) document.getElementById('runStatus').textContent = 'READY';
+      }).catch(function () {});
+    })();
+  </script>
+</body>
+</html>

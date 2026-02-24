@@ -1,0 +1,8 @@
+# File: requirements.txt
+# Description: Dependencies for Rider-Pi MCP server (public version).
+# Created: 2026-02-18
+# Last updated: 2026-02-18
+
+mcp>=1.0.0
+httpx>=0.27.0
+python-dotenv>=1.0.0

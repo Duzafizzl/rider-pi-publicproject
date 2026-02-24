@@ -1,0 +1,12 @@
+# File: requirements.txt
+# Description: Python dependencies for Rider Pi API server.
+# Created: 2026-02-17
+# Last updated: 2026-02-17
+
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+aiohttp>=3.8.0
+
+# Auf dem Rider Pi zusätzlich installieren (Hardware):
+# pip install xgo-pythonlib  # bzw. wie auf dem Pi bereitgestellt

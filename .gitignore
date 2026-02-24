@@ -1,0 +1,20 @@
+# File: .gitignore
+# Description: Ignored files for rider-pi-public.
+# Created: 2026-02-18
+# Last updated: 2026-02-24
+
+.env
+.venv/
+pi-api/config/.env
+pi-api/.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+# Generated status dumps from fetch_pi_status.sh (user-specific)
+pi-api/docs/pi_status_*.txt
