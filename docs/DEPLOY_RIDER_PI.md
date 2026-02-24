@@ -119,11 +119,9 @@ From the **rider-pi-public** repo on your computer:
 
 2. **Clone the repo and use pi-api**
 
-   Replace `YOUR_ORG` with your GitHub user or org.
-
    ```bash
-   git clone https://github.com/YOUR_ORG/rider-pi-public.git
-   cd rider-pi-public/pi-api
+   git clone https://github.com/Duzafizzl/rider-pi-publicproject.git
+   cd rider-pi-publicproject/pi-api
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt

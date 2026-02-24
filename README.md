@@ -34,7 +34,7 @@ To use everything end-to-end: **deploy the pi-api on your Rider Pi** (see [Deplo
 ## Installation (on your PC, for the MCP server)
 
 ```bash
-git clone https://github.com/YOUR_ORG/rider-pi-public.git   # replace YOUR_ORG with your GitHub user/org
+git clone https://github.com/Duzafizzl/rider-pi-publicproject.git
 cd rider-pi-public
 
 python3 -m venv .venv
