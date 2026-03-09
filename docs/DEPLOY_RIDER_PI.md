@@ -2,7 +2,7 @@
 title: DEPLOY_RIDER_PI.md
 description: How to deploy the Rider-Pi API (pi-api) onto the Raspberry Pi so the MCP server can control the robot.
 created: 2026-02-18
-updated: 2026-02-18
+updated: 2026-03-09
 ---
 
 # Deploying the Rider-Pi API onto the Robot
@@ -27,10 +27,10 @@ Both must be on the same network (or reachable). The Pi runs the API; your compu
 2. **Software on the Pi**
    - Python 3.8 or newer.
    - The **xgolib** (XGO) library. On Yahboom images it is often pre-installed. Otherwise install according to [Yahboom’s docs](https://github.com/YahboomTechnology/Rider-Pi-Robot).
-   - Network: the Pi must be on the same LAN as your PC (Wi‑Fi or Ethernet). Note the Pi’s IP or hostname (e.g. `riderpi.local` or `192.168.1.100`).
+   - Network: the Pi must be on the same LAN as your PC (Wi‑Fi or Ethernet). Note the Pi’s IP or hostname (e.g. `riderpi.local` or `192.168.1.42`).
 
 3. **Access**
-   - SSH access to the Pi (e.g. `ssh pi@riderpi.local` or `ssh pi@192.168.1.100`). If you use a different user, replace `pi` in the commands below.
+   - SSH access to the Pi (e.g. `ssh pi@riderpi.local` or `ssh pi@192.168.1.42`). If you use a different user, replace `pi` in the commands below.
 
 ---
 
@@ -207,6 +207,15 @@ If you cannot reach the Pi on port 5050 from your PC, check:
 
 ---
 
+## Optional: Depth Pro (obstacle detection on the Mac)
+
+For obstacle avoidance, **Apple Depth Pro** runs on the **Mac** (not on the Pi): Pi snapshot → Depth Pro → depth map in 3 zones (left/center/right) → rules (e.g. center &lt; 0.4 m = STOP). The optional module lives in this repo under **`depth/`**.
+
+- **Docs:** [depth/README.md](../depth/README.md)
+- **Usage:** e.g. `from depth import estimate_depth_from_pi, obstacle_warning, preload_depth_model` (optional: install `torch`, `depth_pro`). In **miu-substrate** the same logic is used in `services/depth_service.py`; this repo module is the canonical source for Rider-Pi + Depth.
+
+---
+
 ## Summary
 
 | Step | Where | What |
@@ -216,4 +225,4 @@ If you cannot reach the Pi on port 5050 from your PC, check:
 | 3 | Pi | `cp config/.env.example config/.env` (optional), then `python3 rider_pi_server.py` (or `./run.sh`) |
 | 4 | PC | Set `RIDER_PI_BASE_URL=http://<PI_IP_OR_HOSTNAME>:5050` and run the MCP server |
 
-After that, the MCP server on your PC can control the robot via the Pi API.
+After that, the MCP server on your PC can control the robot via the Pi API. Optionally use the **`depth/`** module on the Mac for obstacle avoidance (see above).

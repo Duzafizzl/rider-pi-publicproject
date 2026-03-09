@@ -2,7 +2,7 @@
 title: README.md
 description: Rider-Pi MCP Server – public version, configurable via ENV, no Letta.
 created: 2026-02-18
-updated: 2026-02-24
+updated: 2026-03-09
 ---
 
 # Rider-Pi MCP Server (public version)
@@ -22,6 +22,7 @@ Control your **Yahboom Rider-Pi** (XGO robot on Raspberry Pi) from any **MCP-cap
 | **MCP server** | `src/` | Your PC/Mac – talks to Cursor/Claude and to the Pi API |
 | **Rider-Pi API (pi-api)** | `pi-api/` | The Raspberry Pi – FastAPI app that controls the XGO robot |
 | **Deploy guide** | `docs/DEPLOY_RIDER_PI.md` | How to copy pi-api onto the Pi and run it |
+| **Depth Pro (optional)** | `depth/` | Mac – Apple Depth Pro for obstacle avoidance (Pi snapshot → depth zones); see [depth/README.md](depth/README.md) |
 
 To use everything end-to-end: **deploy the pi-api on your Rider Pi** (see [Deploying the API on the Rider Pi](#deploying-the-api-on-the-rider-pi) below), then run the MCP server on your computer and set `RIDER_PI_BASE_URL` to your Pi’s address.
 
@@ -55,7 +56,7 @@ cp .env.example .env
 **Examples for `RIDER_PI_BASE_URL`:**
 
 - `http://riderpi.local:5050` (mDNS if the Pi is named that way)
-- `http://192.168.1.100:5050` (fixed IP on your local network)
+- `http://192.168.1.42:5050` (fixed IP on your local network)
 - If you reach the Pi via a proxy: proxy base URL + optionally `RIDER_PI_API_PREFIX=/api/rider-pi`
 
 **No** IPs or hostnames are hardcoded – each user sets their own URL in `.env`.
